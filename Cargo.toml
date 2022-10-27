@@ -1,0 +1,18 @@
+[package]
+name = "spbench"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+num-traits = "0.2"
+#sprs = "0.11"
+sprs = { git = "https://github.com/sparsemat/sprs", rev = "9875143" }
+num-complex = "0.4"
+amd = "0.2"
+
+[dev-dependencies]
+criterion = "0.4"
+
+[[bench]]
+name = "amd_benchmark"
+harness = false
