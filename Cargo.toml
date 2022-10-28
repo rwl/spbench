@@ -8,7 +8,10 @@ num-traits = "0.2"
 #sprs = "0.11"
 sprs = { git = "https://github.com/sparsemat/sprs", rev = "9875143" }
 num-complex = "0.4"
+approx = "0.5"
+
 amd = "0.2"
+rlu = "0.2"
 
 [dev-dependencies]
 criterion = "0.4"
