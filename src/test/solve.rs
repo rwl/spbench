@@ -9,22 +9,24 @@ const EPSILON: f64 = 1e-11;
 
 #[test]
 fn test_ybus() {
-    // for d in [
-    //     case_activsg2000_bbus(),
-    //     // case_activsg10k_bbus(),
-    //     // case_activsg25k_bbus(),
-    //     // case_activsg70k_bbus(),
-    // ] {
-    //     let n = d.0;
-    //     // let x = vec![vec![1.0; n], vec![-1.0; n]];
-    //     let x = vec![vec![1.0; n]];
-    //     let b = test_rlu(d, &x);
-    //     for i in 0..x.len() {
-    //         for j in 0..n {
-    //             assert_abs_diff_eq!(b[i][j], x[i][j], epsilon = EPSILON);
-    //         }
-    //     }
-    // }
+    for d in [
+        case_activsg2000_bbus(),
+        case_activsg10k_bbus(),
+        // case_activsg25k_bbus(),
+        // case_activsg70k_bbus(),
+    ] {
+        let n = d.0;
+        let x = vec![
+            (0..n).map(|i| 1.0 + i as f64 / n as f64).collect(),
+            (0..n).map(|i| -1.0 - i as f64 / n as f64).collect(),
+        ];
+        let b = test_rlu(d, &x);
+        for i in 0..x.len() {
+            for j in 0..n {
+                assert_abs_diff_eq!(b[i][j], x[i][j], epsilon = EPSILON);
+            }
+        }
+    }
 
     for d in [
         case_activsg2000_ybus(),
@@ -34,12 +36,24 @@ fn test_ybus() {
     ] {
         let n = d.0;
         let x = vec![
-            vec![Complex64::new(1.0, 0.0); n],
-            vec![Complex64::new(1.0, 1.0); n],
-            vec![Complex64::new(0.0, 1.0); n],
-            vec![Complex64::new(-1.0, 0.0); n],
-            vec![Complex64::new(-1.0, -1.0); n],
-            vec![Complex64::new(0.0, -1.0); n],
+            (0..n)
+                .map(|i| Complex64::new(1.0 + i as f64 / n as f64, 0.0))
+                .collect(),
+            (0..n)
+                .map(|i| Complex64::new(1.0 + i as f64 / n as f64, 1.0 + i as f64 / n as f64))
+                .collect(),
+            (0..n)
+                .map(|i| Complex64::new(0.0, 1.0 + i as f64 / n as f64))
+                .collect(),
+            (0..n)
+                .map(|i| Complex64::new(-1.0 - i as f64 / n as f64, 0.0))
+                .collect(),
+            (0..n)
+                .map(|i| Complex64::new(-1.0 - i as f64 / n as f64, -1.0 - i as f64 / n as f64))
+                .collect(),
+            (0..n)
+                .map(|i| Complex64::new(0.0, -1.0 - i as f64 / n as f64))
+                .collect(),
         ];
         let b = test_rlu(d, &x);
         for i in 0..x.len() {
@@ -57,7 +71,10 @@ fn test_ybus() {
         // case_activsg70k_jac(),
     ] {
         let n = d.0;
-        let x = vec![vec![1.0; n], vec![-1.0; n]];
+        let x = vec![
+            (0..n).map(|i| 1.0 + i as f64 / n as f64).collect(),
+            (0..n).map(|i| -1.0 - i as f64 / n as f64).collect(),
+        ];
         let b = test_rlu(d, &x);
         for i in 0..x.len() {
             for j in 0..n {
@@ -85,6 +102,10 @@ fn test_rlu<S: AddAssign + rlu::Scalar + Debug>(
     let mut b: Vec<Vec<S>> = vec![];
     for x_i in x {
         let b_i = mat_vec(n, &a_i, &a_p, &a_x, x_i);
+
+        // println!("{:?}", x_i.to_vec());
+        // println!("{:?}", b_i.to_vec());
+
         b.push(b_i);
     }
 
