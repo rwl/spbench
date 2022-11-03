@@ -1,2 +1,2 @@
-mod order;
-mod solve;
+mod order_test;
+mod solve_test;

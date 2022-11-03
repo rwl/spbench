@@ -8,3 +8,6 @@ bench:
 .PHONY: setup
 setup:
 	cargo install cargo-criterion
+
+clean:
+	rm -rf target/criterion

@@ -39,12 +39,12 @@ fn benchmark_inputs(c: &mut Criterion, group_name: &str, inputs: &[Input]) {
     group.finish();
 }
 
-fn amd_bbus_benchmark(c: &mut Criterion) {
+pub fn bbus_order_benchmark(c: &mut Criterion) {
     let inputs = [
         case_activsg2000_bbus(),
-        case_activsg10k_bbus(),
-        case_activsg25k_bbus(),
-        case_activsg70k_bbus(),
+        // case_activsg10k_bbus(),
+        // case_activsg25k_bbus(),
+        // case_activsg70k_bbus(),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
@@ -53,12 +53,12 @@ fn amd_bbus_benchmark(c: &mut Criterion) {
     benchmark_inputs(c, "AMD Bbus", &inputs);
 }
 
-fn amd_ybus_benchmark(c: &mut Criterion) {
+pub fn ybus_order_benchmark(c: &mut Criterion) {
     let inputs = [
         case_activsg2000_ybus(),
-        case_activsg10k_ybus(),
-        case_activsg25k_ybus(),
-        case_activsg70k_ybus(),
+        // case_activsg10k_ybus(),
+        // case_activsg25k_ybus(),
+        // case_activsg70k_ybus(),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
@@ -67,12 +67,12 @@ fn amd_ybus_benchmark(c: &mut Criterion) {
     benchmark_inputs(c, "AMD Ybus", &inputs);
 }
 
-fn amd_jac_benchmark(c: &mut Criterion) {
+pub fn jac_order_benchmark(c: &mut Criterion) {
     let inputs = [
         case_activsg2000_jac(),
-        case_activsg10k_jac(),
-        case_activsg25k_jac(),
-        case_activsg70k_jac(),
+        // case_activsg10k_jac(),
+        // case_activsg25k_jac(),
+        // case_activsg70k_jac(),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
@@ -83,8 +83,8 @@ fn amd_jac_benchmark(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    amd_bbus_benchmark,
-    amd_ybus_benchmark,
-    amd_jac_benchmark
+    // bbus_order_benchmark,
+    ybus_order_benchmark,
+    // jac_order_benchmark
 );
 criterion_main!(benches);

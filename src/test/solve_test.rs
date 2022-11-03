@@ -1,0 +1,154 @@
+use crate::mtx::*;
+use approx::assert_abs_diff_eq;
+use num_complex::Complex64;
+use num_traits::Zero;
+use std::fmt::Debug;
+use std::ops::{AddAssign, Mul};
+
+const EPSILON: f64 = 1e-11;
+
+#[test]
+fn test_bbus() {
+    for d in [
+        case_activsg2000_bbus(),
+        case_activsg10k_bbus(),
+        // case_activsg25k_bbus(),
+        // case_activsg70k_bbus(),
+    ] {
+        let n = d.0;
+        let x = Vec::from(
+            [
+                (0..n)
+                    .map(|i| 1.0 + i as f64 / n as f64)
+                    .collect::<Vec<f64>>(),
+                (0..n)
+                    .map(|i| -1.0 - i as f64 / n as f64)
+                    .collect::<Vec<f64>>(),
+            ]
+            .concat(),
+        );
+
+        let b = test_rlu(d, &x);
+
+        for i in 0..n {
+            assert_abs_diff_eq!(b[i], x[i], epsilon = EPSILON);
+        }
+    }
+}
+
+#[test]
+fn test_ybus() {
+    for d in [
+        case_activsg2000_ybus(),
+        case_activsg10k_ybus(),
+        case_activsg25k_ybus(),
+        // case_activsg70k_ybus(),
+    ] {
+        let n = d.0;
+        let x = Vec::from(
+            [
+                (0..n)
+                    .map(|i| Complex64::new(1.0 + i as f64 / n as f64, 0.0))
+                    .collect::<Vec<Complex64>>(),
+                (0..n)
+                    .map(|i| Complex64::new(1.0 + i as f64 / n as f64, 1.0 + i as f64 / n as f64))
+                    .collect::<Vec<Complex64>>(),
+                (0..n)
+                    .map(|i| Complex64::new(0.0, 1.0 + i as f64 / n as f64))
+                    .collect::<Vec<Complex64>>(),
+                (0..n)
+                    .map(|i| Complex64::new(-1.0 - i as f64 / n as f64, 0.0))
+                    .collect::<Vec<Complex64>>(),
+                (0..n)
+                    .map(|i| Complex64::new(-1.0 - i as f64 / n as f64, -1.0 - i as f64 / n as f64))
+                    .collect::<Vec<Complex64>>(),
+                (0..n)
+                    .map(|i| Complex64::new(0.0, -1.0 - i as f64 / n as f64))
+                    .collect::<Vec<Complex64>>(),
+            ]
+            .concat(),
+        );
+        let b = test_rlu(d, &x);
+        for i in 0..n {
+            assert_abs_diff_eq!(b[i].re, x[i].re, epsilon = EPSILON);
+            assert_abs_diff_eq!(b[i].im, x[i].im, epsilon = EPSILON);
+        }
+    }
+}
+
+#[test]
+fn test_jac() {
+    for d in [
+        case_activsg2000_jac(),
+        case_activsg10k_jac(),
+        case_activsg25k_jac(),
+        // case_activsg70k_jac(),
+    ] {
+        let n = d.0;
+        let x = Vec::from(
+            [
+                (0..n)
+                    .map(|i| 1.0 + i as f64 / n as f64)
+                    .collect::<Vec<f64>>(),
+                (0..n)
+                    .map(|i| -1.0 - i as f64 / n as f64)
+                    .collect::<Vec<f64>>(),
+            ]
+            .concat(),
+        );
+        let b = test_rlu(d, &x);
+        for i in 0..n {
+            assert_abs_diff_eq!(b[i], x[i], epsilon = EPSILON);
+        }
+    }
+}
+
+fn test_rlu<S: AddAssign + rlu::Scalar + Debug>(
+    d: (usize, Vec<usize>, Vec<usize>, Vec<S>),
+    x: &[S],
+) -> Vec<S> {
+    let (n, a_p, a_i, a_x) = d;
+
+    let control = amd::Control::default();
+
+    let (p, _p_inv, info) = amd::order::<usize>(n, &a_p, &a_i, &control).unwrap();
+    assert_eq!(info.status, amd::Status::OK);
+    // amd::info(&info);
+
+    let options = rlu::Options::default();
+    let lu = rlu::factor(n, &a_i, &a_p, &a_x, Some(&p), &options).unwrap();
+
+    let mut b = Vec::<S>::with_capacity(x.len());
+    for x_i in x.chunks_exact(n) {
+        let b_i = mat_vec(n, &a_i, &a_p, &a_x, x_i);
+
+        // println!("{:?}", x_i.to_vec());
+        // println!("{:?}", b_i.to_vec());
+
+        b.extend(b_i);
+    }
+
+    rlu::solve(&lu, &mut b, false).unwrap();
+
+    b
+}
+
+fn mat_vec<S: Copy + Zero + Mul<Output = S> + AddAssign>(
+    n: usize,
+    a_i: &[usize],
+    a_p: &[usize],
+    a_x: &[S],
+    x: &[S],
+) -> Vec<S> {
+    let mut y = vec![S::zero(); n];
+    for j in 0..n {
+        let start = a_p[j];
+        let end = a_p[j + 1];
+
+        for ii in start..end {
+            let i = a_i[ii];
+            y[i] += a_x[ii] * x[j];
+        }
+    }
+    y
+}
