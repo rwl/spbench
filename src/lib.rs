@@ -1,3 +1,4 @@
+mod klu;
 mod mtx;
 #[cfg(test)]
 mod test;
