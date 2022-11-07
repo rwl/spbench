@@ -40,11 +40,12 @@ fn benchmark_inputs(c: &mut Criterion, group_name: &str, inputs: &[Input]) {
 }
 
 pub fn bbus_order_benchmark(c: &mut Criterion) {
+    let trans = false;
     let inputs = [
-        case_activsg2000_bbus(),
-        // case_activsg10k_bbus(),
-        // case_activsg25k_bbus(),
-        // case_activsg70k_bbus(),
+        case_activsg2000_bbus(!trans),
+        // case_activsg10k_bbus(!trans),
+        // case_activsg25k_bbus(!trans),
+        // case_activsg70k_bbus(!trans),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
@@ -54,11 +55,12 @@ pub fn bbus_order_benchmark(c: &mut Criterion) {
 }
 
 pub fn ybus_order_benchmark(c: &mut Criterion) {
+    let trans = false;
     let inputs = [
-        case_activsg2000_ybus(),
-        // case_activsg10k_ybus(),
-        // case_activsg25k_ybus(),
-        // case_activsg70k_ybus(),
+        case_activsg2000_ybus(!trans),
+        // case_activsg10k_ybus(!trans),
+        // case_activsg25k_ybus(!trans),
+        // case_activsg70k_ybus(!trans),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
@@ -68,11 +70,12 @@ pub fn ybus_order_benchmark(c: &mut Criterion) {
 }
 
 pub fn jac_order_benchmark(c: &mut Criterion) {
+    let trans = false;
     let inputs = [
-        case_activsg2000_jac(),
-        // case_activsg10k_jac(),
-        // case_activsg25k_jac(),
-        // case_activsg70k_jac(),
+        case_activsg2000_jac(!trans),
+        // case_activsg10k_jac(!trans),
+        // case_activsg25k_jac(!trans),
+        // case_activsg70k_jac(!trans),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))

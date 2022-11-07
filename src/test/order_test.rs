@@ -3,7 +3,7 @@ use amd::Status;
 
 #[test]
 fn test_amd() {
-    let (n, a_p, a_i, _) = case_activsg2000_ybus();
+    let (n, a_p, a_i, _) = case_activsg2000_ybus(true);
 
     let control = amd::Control::default();
 

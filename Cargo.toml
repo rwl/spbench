@@ -12,7 +12,10 @@ approx = "0.5"
 rayon = "1.5"
 
 amd = "0.2"
-rlu = "0.3.1"
+rlu = { version = "=0.4.2", features = ["rayon"] }
+#rlu = { path = "../rlu", features = ["rayon"] }
+
+cpuprofiler = "0.0.4"
 
 [dev-dependencies]
 criterion = "0.4"

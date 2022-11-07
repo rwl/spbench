@@ -10,23 +10,27 @@ struct Input<S: rlu::Scalar> {
 }
 
 fn jac_par_solve_benchmark(c: &mut Criterion) {
-    let a = case_activsg2000_jac();
+    let trans = false;
+    let a = case_activsg2000_bbus(!trans);
+    // let a = case_activsg2000_jac();
     // let a = case_activsg10k_jac();
+
     let n = a.0;
+    let n_rhs = n / 1;
     let x = (0..n)
         .map(|i| 1.0 + i as f64 / n as f64)
         .collect::<Vec<f64>>();
-    par_solve_benchmark(c, a, &x);
+    let rhs = x.repeat(n_rhs);
+
+    par_solve_benchmark(c, a, &rhs);
 }
 
 fn par_solve_benchmark<S: rlu::Scalar + Sync + Send>(
     c: &mut Criterion,
     d: (usize, Vec<usize>, Vec<usize>, Vec<S>),
-    x: &[S],
+    rhs: &[S],
 ) {
     let (n, a_p, a_i, a_x) = d;
-
-    let n_rhs = n / 1;
 
     let control = amd::Control::default();
 
@@ -37,23 +41,22 @@ fn par_solve_benchmark<S: rlu::Scalar + Sync + Send>(
     let options = rlu::Options::default();
     let lu = rlu::factor(n, &a_i, &a_p, &a_x, Some(&p), &options).unwrap();
 
-    let rhs = x.repeat(n_rhs);
-
     let available_parallelism_approx = available_parallelism().unwrap().get();
 
     let inputs = (1..=available_parallelism_approx)
         .map(|n_cpu| Input {
             n_cpu,
             lu: lu.clone(),
-            rhs: rhs.clone(),
+            rhs: rhs.to_vec(),
         })
         .collect::<Vec<Input<S>>>();
 
     let mut group = c.benchmark_group("par_solve");
     group.sample_size(10);
+    group.throughput(Throughput::Elements((rhs.len() / n) as u64));
 
     for input in inputs.iter() {
-        group.throughput(Throughput::Elements(input.n_cpu as u64));
+        // group.throughput(Throughput::Elements(input.n_cpu as u64));
         group.bench_with_input(BenchmarkId::from_parameter(input.n_cpu), input, |b, d| {
             b.iter(|| {
                 let mut rhs = d.rhs.clone();
@@ -63,6 +66,8 @@ fn par_solve_benchmark<S: rlu::Scalar + Sync + Send>(
                     .build()
                     .unwrap()
                     .install(|| {
+                        // rlu::solve(black_box(&d.lu), black_box(&mut rhs), black_box(false))
+                        //     .unwrap();
                         rlu::par_solve(black_box(&d.lu), black_box(&mut rhs), black_box(false))
                             .unwrap();
                     });
