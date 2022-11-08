@@ -28,4 +28,7 @@ setup:
 	cargo install cargo-criterion
 
 clean:
+	rm -f spbench.profile
+
+distclean:
 	rm -rf target/criterion

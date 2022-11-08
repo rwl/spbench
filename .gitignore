@@ -2,3 +2,4 @@
 Cargo.lock
 
 data/matpower/mtx.zip
+spbench.profile

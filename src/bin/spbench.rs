@@ -15,19 +15,18 @@ fn main() {
     // amd::info(&info);
 
     let options = rlu::Options::default();
-    let lu = rlu::factor(n, &a_i, &a_p, &a_x, Some(&p), &options).unwrap();
-
-    let mut b = vec![1.0; n * (n / 2)];
-
-    println!("factor: {:?}", t0.elapsed());
-    let t0 = Instant::now();
 
     PROFILER.lock().unwrap().start("./spbench.profile").unwrap();
-
-    rlu::solve(&lu, &mut b, trans).unwrap();
-    // rlu::par_solve(&lu, &mut b, false).unwrap();
-
+    let _lu = rlu::factor(n, &a_i, &a_p, &a_x, Some(&p), &options).unwrap();
     PROFILER.lock().unwrap().stop().unwrap();
 
-    println!("solve: {:?}", t0.elapsed());
+    println!("factor: {:?}", t0.elapsed());
+    // let t0 = Instant::now();
+    //
+    // let mut b = vec![1.0; n * (n / 2)];
+    //
+    // rlu::solve(&lu, &mut b, trans).unwrap();
+    // // rlu::par_solve(&lu, &mut b, false).unwrap();
+    //
+    // println!("solve: {:?}", t0.elapsed());
 }

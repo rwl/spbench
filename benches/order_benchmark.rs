@@ -25,14 +25,31 @@ fn benchmark_inputs(c: &mut Criterion, group_name: &str, inputs: &[Input]) {
 
     for input in inputs.iter() {
         group.throughput(Throughput::Elements(input.n as u64));
-        group.bench_with_input(BenchmarkId::from_parameter(input.n), input, |b, d| {
+        group.bench_with_input(BenchmarkId::new("rlu::order", input.n), input, |b, d| {
             b.iter(|| {
-                amd::order(
-                    black_box(d.n),
-                    black_box(&d.a_p),
-                    black_box(&d.a_i),
-                    black_box(&d.control),
-                )
+                black_box(
+                    amd::order(
+                        black_box(d.n),
+                        black_box(&d.a_p),
+                        black_box(&d.a_i),
+                        black_box(&d.control),
+                    )
+                    .unwrap(),
+                );
+            });
+        });
+        group.bench_with_input(BenchmarkId::new("klu::analyze", input.n), input, |b, d| {
+            b.iter(|| {
+                let common = klu::defaults();
+                black_box(
+                    klu::analyze(
+                        black_box(d.n),
+                        black_box(&d.a_p),
+                        black_box(&d.a_i),
+                        black_box(&common),
+                    )
+                    .unwrap(),
+                );
             });
         });
     }
@@ -51,22 +68,22 @@ pub fn bbus_order_benchmark(c: &mut Criterion) {
     .map(|d| Input::new(d.0, &d.1, &d.2))
     .collect::<Vec<Input>>();
 
-    benchmark_inputs(c, "AMD Bbus", &inputs);
+    benchmark_inputs(c, "order(bbus)", &inputs);
 }
 
 pub fn ybus_order_benchmark(c: &mut Criterion) {
     let trans = false;
     let inputs = [
         case_activsg2000_ybus(!trans),
-        // case_activsg10k_ybus(!trans),
-        // case_activsg25k_ybus(!trans),
-        // case_activsg70k_ybus(!trans),
+        case_activsg10k_ybus(!trans),
+        case_activsg25k_ybus(!trans),
+        case_activsg70k_ybus(!trans),
     ]
     .iter()
     .map(|d| Input::new(d.0, &d.1, &d.2))
     .collect::<Vec<Input>>();
 
-    benchmark_inputs(c, "AMD Ybus", &inputs);
+    benchmark_inputs(c, "order(ybus)", &inputs);
 }
 
 pub fn jac_order_benchmark(c: &mut Criterion) {
@@ -81,7 +98,7 @@ pub fn jac_order_benchmark(c: &mut Criterion) {
     .map(|d| Input::new(d.0, &d.1, &d.2))
     .collect::<Vec<Input>>();
 
-    benchmark_inputs(c, "AMD Jac", &inputs);
+    benchmark_inputs(c, "order(jac)", &inputs);
 }
 
 criterion_group!(
