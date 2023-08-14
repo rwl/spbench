@@ -1,7 +1,7 @@
 use crate::mtx::*;
 use approx::assert_abs_diff_eq;
 use num_complex::Complex64;
-use num_traits::Zero;
+use num_traits::{ToPrimitive, Zero};
 use std::fmt::Debug;
 use std::ops::{AddAssign, Mul};
 
@@ -143,40 +143,40 @@ fn test_rlu<S: AddAssign + rlu::Scalar + Send + Sync + Debug>(
     b
 }
 
-fn csc_mat_vec<S: Copy + Zero + Mul<Output = S> + AddAssign>(
+pub fn csc_mat_vec<I: Copy + ToPrimitive, S: Copy + Zero + Mul<Output = S> + AddAssign>(
     n: usize,
-    a_i: &[usize],
-    a_p: &[usize],
+    a_i: &[I],
+    a_p: &[I],
     a_x: &[S],
     x: &[S],
 ) -> Vec<S> {
     let mut y = vec![S::zero(); n];
     for j in 0..n {
-        let start = a_p[j];
-        let end = a_p[j + 1];
+        let start = a_p[j].to_usize().unwrap();
+        let end = a_p[j + 1].to_usize().unwrap();
 
         for ii in start..end {
-            let i = a_i[ii];
+            let i = a_i[ii].to_usize().unwrap();
             y[i] += a_x[ii] * x[j];
         }
     }
     y
 }
 
-pub fn csr_mat_vec<S: Copy + Zero + Mul<Output = S> + AddAssign>(
+pub fn csr_mat_vec<I: Copy + ToPrimitive, S: Copy + Zero + Mul<Output = S> + AddAssign>(
     n: usize,
-    a_i: &[usize],
-    a_p: &[usize],
+    a_i: &[I],
+    a_p: &[I],
     a_x: &[S],
     x: &[S],
 ) -> Vec<S> {
     let mut y = vec![S::zero(); n];
     for i in 0..n {
-        let start = a_p[i];
-        let end = a_p[i + 1];
+        let start = a_p[i].to_usize().unwrap();
+        let end = a_p[i + 1].to_usize().unwrap();
 
         for jj in start..end {
-            let j = a_i[jj];
+            let j = a_i[jj].to_usize().unwrap();
             y[i] += a_x[jj] * x[j];
         }
     }

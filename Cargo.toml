@@ -16,6 +16,9 @@ rlu = { version = "=0.4.2", features = ["rayon"] }
 
 klu_sys = "0.2"
 
+
+lufact = "0.1"
+
 cpuprofiler = "0.0.4"
 
 [dev-dependencies]
